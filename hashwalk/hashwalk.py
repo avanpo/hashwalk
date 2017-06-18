@@ -1,4 +1,6 @@
 import logging
+import time
+from hiker import Hiker
 from simulated_annealing import SimulatedAnnealing
 
 logger = logging.getLogger("hashwalk")
@@ -8,7 +10,11 @@ consoleHandler.setLevel(logging.DEBUG)
 logger.addHandler(consoleHandler)
 
 target = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-start = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
-local_search = SimulatedAnnealing(epoch_len=1000000)
-local_search.run(target, start)
+start_time = time.time()
+
+local_search = Hiker(target, steps=10000000)
+local_search.run()
+
+elapsed_time = time.time() - start_time
+logger.info("Completed run in %d seconds." % elapsed_time)

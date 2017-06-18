@@ -7,8 +7,12 @@ import mutation
 
 class SimulatedAnnealing:
 
-    def __init__(self, alpha=0.95, temp=25.0, epoch_len=1000000):
+    def __init__(self, target, alpha=0.95, temp=25.0, epoch_len=1000000):
         self.logger = logging.getLogger("hashwalk.SimulatedAnnealing")
+        self.target = target
+        self.best_score = fitness.md5(target, target)
+        self.best = target
+
         self.alpha = alpha
         self.temp = temp
         self.epoch_len = epoch_len
@@ -22,12 +26,12 @@ class SimulatedAnnealing:
         else:
             return mutation.bit_flip(s)
 
-    def is_accepted(self, score, curr):
-        if score <= curr:
+    def is_accepted(self, score, curr_score):
+        if score <= curr_score:
             self.logger.debug("  Accepting new sol: %d" % score)
             return True
         
-        delta = curr - score
+        delta = curr_score - score
         p = math.e ** (float(delta) / self.temp)
         accept = random.random() < p
 
@@ -38,24 +42,23 @@ class SimulatedAnnealing:
 
         return accept
 
-    def run(self, target, s):
-        best = fitness.md5(target, s)
-        best_s = s
-
-        curr = best
+    def run(self):
+        curr_score = self.best_score
+        curr = self.best
 
         while self.temp > 1.0:
             self.logger.debug("Epoch with temp=%.3f" % self.temp)
             for i in range(0, self.epoch_len):
-                candidate = self.mutate(s)
-                score = fitness.md5(target, candidate)
+                candidate = self.mutate(curr)
+                score = fitness.md5(self.target, candidate)
 
-                if self.is_accepted(score, curr):
-                    s = candidate
-                    curr = score
+                if self.is_accepted(score, curr_score):
+                    curr_score = score
+                    curr = candidate
 
-                if score < best:
-                    self.logger.info("Best solution found at %d, %s" % (score, s.hex()))
-                    best = score
+                if score < self.best_score:
+                    self.logger.info("Best solution found at %d, %s" % (score, candidate.hex()))
+                    self.best_score = score
+                    self.best = candidate
 
             self.temp *= self.alpha
