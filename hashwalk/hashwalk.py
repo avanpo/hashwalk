@@ -14,8 +14,8 @@ target = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
 start_time = time.time()
 
-search = local_search.SimulatedAnnealing(target, fitness.md5, epoch_len=100000)
-search.run()
+search = local_search.GeneticAlgorithm(target, fitness.md5, population_size=500000)
+search.run(generations=100)
 
 elapsed_time = time.time() - start_time
 logger.info("Completed run in %d seconds." % elapsed_time)
