@@ -16,13 +16,12 @@ def print_pop(p):
     for i in range(0, len(p), 2):
         m1 = p[i]
         m2 = p[i + 1]
-        s.append("%s %3d         %s %3d\n" % (print_member(m1), m1[1], \
-                print_member(m2), m2[1]))
+        s.append("%s %3d         %s %3d\n" % (print_member(m1[0]), m1[1], \
+                print_member(m2[0]), m2[1]))
     return "".join(s)
 
 
-def print_member(m):
-    s = m[0]
+def print_member(s):
     if len(s) > 4:
         return "%06x..." % int.from_bytes(s[:3], "big")
     elif len(s) == 4:

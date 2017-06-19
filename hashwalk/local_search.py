@@ -14,6 +14,18 @@ class LocalSearch:
         self.best_score = fitness(target, target)
         self.best = target
 
+        self.scores = [0] * 128
+
+    def fitness(self, s):
+        return self._fitness(self.target, s)
+
+    def update(self, s, score):
+        self.scores[score] += 1
+        if score < self.best_score:
+            self.logger.info("Best solution found at %d, %s" % (score, utils.print_member(s)))
+            self.best_score = score
+            self.best = s
+
     def mutate(self, s):
         op = random.randint(0, 5)
         if op == 0:
@@ -22,10 +34,6 @@ class LocalSearch:
             return operations.delete(s)
         else:
             return operations.bit_flip(s)
-
-
-    def fitness(self, s):
-        return self._fitness(self.target, s)
 
 
 class Hiker(LocalSearch):
@@ -42,10 +50,7 @@ class Hiker(LocalSearch):
             curr = self.mutate(curr)
             curr_score = self.fitness(curr)
 
-            if curr_score < self.best_score:
-                self.logger.info("Best solution found at %d, %s" % (curr_score, curr.hex()))
-                self.best_score = curr_score
-                self.best = curr
+            self.update(curr, curr_score)
 
 
 class SimulatedAnnealing(LocalSearch):
@@ -83,15 +88,12 @@ class SimulatedAnnealing(LocalSearch):
                 candidate = self.mutate(curr)
                 score = self.fitness(candidate)
 
+                self.update(candidate, score)
+
                 if self.is_accepted(score, curr_score):
                     curr_score = score
                     curr = candidate
                     ops += 1
-
-                if score < self.best_score:
-                    self.logger.info("Best solution found at %d, %s" % (score, candidate.hex()))
-                    self.best_score = score
-                    self.best = candidate
 
             self.logger.info("Epoch ended with %.3f%% of ops accepted." % (100 * ops / float(self.epoch_len)))
             self.temp *= self.alpha
@@ -110,6 +112,9 @@ class GeneticAlgorithm(LocalSearch):
             s = utils.generate_bytes()
             f = self.fitness(s)
             self.population[i] = (s, f)
+            if f < self.best_score:
+                self.best = s
+                self.best_score = f
 
     def select_parents(self, p):
         """Select parents through tournament selection (s=2)."""
@@ -134,6 +139,8 @@ class GeneticAlgorithm(LocalSearch):
             c2 = self.mutate(c2) if random.randrange(2) == 0 else c2
             c[i] = (c1, self.fitness(c1))
             c[i + 1] = (c2, self.fitness(c2))
+            self.update(c[i][0], c[i][1])
+            self.update(c[i + 1][0], c[i + 1][1])
 
         return c
 
@@ -167,4 +174,4 @@ class GeneticAlgorithm(LocalSearch):
             #self.logger.debug(utils.print_pop(c))
 
             self.population = self.select_generation(self.population, c)
-            self.logger.info("Fittest member with score %d, %s" % (self.population[0][1], utils.print_member(self.population[0])))
+            self.logger.info("Fittest member with score %d, %s" % (self.population[0][1], utils.print_member(self.population[0][0])))
