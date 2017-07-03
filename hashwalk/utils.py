@@ -34,3 +34,8 @@ def print_member(s):
         return "       %02x" % int.from_bytes(s, "big")
     else:
         return "     null"
+
+
+def print_scores(search):
+    for i in range(0, 128):
+        print("%d %d" % (i, search.scores[i]))
