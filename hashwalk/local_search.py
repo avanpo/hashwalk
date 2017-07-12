@@ -2,6 +2,7 @@ import logging
 import math
 import operator
 import random
+import sys
 
 import operations
 import utils
@@ -11,16 +12,26 @@ class LocalSearch:
     def __init__(self, target, fitness):
         self.target = target
         self._fitness = fitness
+        self._uniq = False
         self.best_score = fitness(target, target)
         self.best = target
 
-        self.scores = [0] * 128
+        self.scores = [0] * (128 + 1)
 
     def fitness(self, s):
         return self._fitness(self.target, s)
 
+    def set_uniq(self):
+        self._uniq = True
+        self._hashset = set()
+
     def update(self, s, score):
-        self.scores[score] += 1
+        if not self._uniq:
+            self.scores[score] += 1
+        elif s not in self._hashset:
+            self.scores[score] += 1
+            self._hashset.add(s)
+
         if score < self.best_score:
             self.logger.info("Best solution found at %d, %s" % (score, utils.print_member(s)))
             self.best_score = score
@@ -95,7 +106,7 @@ class SimulatedAnnealing(LocalSearch):
                     curr = candidate
                     ops += 1
 
-            self.logger.info("Epoch ended with %.3f%% of ops accepted." % (100 * ops / float(self.epoch_len)))
+            self.logger.debug("Epoch ended with %.3f%% of ops accepted." % (100 * ops / float(self.epoch_len)))
             self.temp *= self.alpha
 
 
@@ -103,6 +114,9 @@ class GeneticAlgorithm(LocalSearch):
     def __init__(self, target, fitness, population_size=100):
         self.logger = logging.getLogger("hashwalk.local_search.GeneticAlgorithm")
         super().__init__(target, fitness)
+        if population_size % 2 == 1:
+            self.logger.error("The population size must be an even integer.")
+            sys.exit(1)
         self.p_size = population_size
         self.generate_population()
 
@@ -159,7 +173,7 @@ class GeneticAlgorithm(LocalSearch):
                 g[i] = c[b]
                 b += 1
 
-        self.logger.info("Selected new generation with %d parents and %d children." % (a, b))
+        self.logger.debug("Selected new generation with %d parents and %d children." % (a, b))
         return g
 
     def run(self, generations=100):
@@ -174,4 +188,4 @@ class GeneticAlgorithm(LocalSearch):
             #self.logger.debug(utils.print_pop(c))
 
             self.population = self.select_generation(self.population, c)
-            self.logger.info("Fittest member with score %d, %s" % (self.population[0][1], utils.print_member(self.population[0][0])))
+            self.logger.debug("Fittest member with score %d, %s" % (self.population[0][1], utils.print_member(self.population[0][0])))

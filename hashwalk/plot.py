@@ -5,10 +5,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_scores(n, scores):
+def plot_scores(scores):
     logger = logging.getLogger("hashwalk.plot")
     
+    n = len(scores) - 1
     samples = sum(scores)
+
     logger.info("Generating svg for %d samples..." % samples)
     k = np.arange(0, n + 1)
     pmf = binom.pmf(k, n, 0.5)
@@ -16,12 +18,12 @@ def plot_scores(n, scores):
 
     plt.xlabel("Hamming distance")
     plt.ylabel("Hashes found")
-    plt.axis([0, 128, 0, 0.1 * samples])
+    plt.axis([0, n, 0, 0.08 * samples])
 
-    print(scores)
-    print(scaled_pmf)
+    #print(scores)
+    #print(scaled_pmf)
 
-    plt.bar(k[:-1], scores)
+    plt.bar(k, scores)
     plt.plot(k, scaled_pmf, "b-")
 
     plt.savefig("test.svg")

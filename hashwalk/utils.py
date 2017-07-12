@@ -1,3 +1,4 @@
+import math
 import random
 
 
@@ -25,17 +26,35 @@ def print_member(s):
     if len(s) > 4:
         return "%06x..." % int.from_bytes(s[:3], "big")
     elif len(s) == 4:
-        return " %08x" % int.from_bytes(s, "big")
+        return "%08x " % int.from_bytes(s, "big")
     elif len(s) == 3:
-        return "   %06x" % int.from_bytes(s, "big")
+        return "%06x   " % int.from_bytes(s, "big")
     elif len(s) == 2:
-        return "     %04x" % int.from_bytes(s, "big")
+        return "%04x     " % int.from_bytes(s, "big")
     elif len(s) == 3:
-        return "       %02x" % int.from_bytes(s, "big")
+        return "%02x       " % int.from_bytes(s, "big")
     else:
-        return "     null"
+        return "null     "
+
+
+def compute_mean(search):
+    num_hashes = 0
+    sum_deltas = 0
+    for i in range(0, len(search.scores)):
+        num_hashes += search.scores[i]
+        sum_deltas += search.scores[i] * i
+    return sum_deltas / num_hashes
+
+
+def compute_sigma(search, mean):
+    num_hashes = 0
+    accumulator = 0
+    for i in range(0, len(search.scores)):
+        num_hashes += search.scores[i]
+        accumulator += search.scores[i] * ((i - mean) ** 2)
+    return math.sqrt(accumulator / num_hashes)
 
 
 def print_scores(search):
-    for i in range(0, 128):
+    for i in range(0, len(search.scores)):
         print("%d %d" % (i, search.scores[i]))
