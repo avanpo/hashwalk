@@ -50,6 +50,7 @@ class LocalSearch:
 class Hiker(LocalSearch):
     def __init__(self, target, fitness, steps=10000000):
         self.logger = logging.getLogger("hashwalk.local_search.Hiker")
+        self.name = "Hiker"
         super().__init__(target, fitness)
         self.steps = steps
 
@@ -67,6 +68,7 @@ class Hiker(LocalSearch):
 class SimulatedAnnealing(LocalSearch):
     def __init__(self, target, fitness, alpha=0.95, temp=25.0, epoch_len=1000000):
         self.logger = logging.getLogger("hashwalk.local_search.SimulatedAnnealing")
+        self.name = "Simulated annealing"
         super().__init__(target, fitness)
 
         self.alpha = alpha
@@ -113,6 +115,7 @@ class SimulatedAnnealing(LocalSearch):
 class GeneticAlgorithm(LocalSearch):
     def __init__(self, target, fitness, population_size=100):
         self.logger = logging.getLogger("hashwalk.local_search.GeneticAlgorithm")
+        self.name = "Genetic algorithm"
         super().__init__(target, fitness)
         if population_size % 2 == 1:
             self.logger.error("The population size must be an even integer.")

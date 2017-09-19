@@ -19,12 +19,13 @@ start_time = time.time()
 #search = local_search.Hiker(target, fitness.md5, steps=1000000)
 #search.run()
 
-search = local_search.SimulatedAnnealing(target, fitness.md5, epoch_len=100000)
-search.set_uniq()
-search.run()
+#search = local_search.SimulatedAnnealing(target, fitness.md5, epoch_len=1000)
+#search.set_uniq()
+#search.run()
 
-#search = local_search.GeneticAlgorithm(target, fitness.md5, population_size=20000)
-#search.run(generations=500)
+search = local_search.GeneticAlgorithm(target, fitness.md5, population_size=1000)
+search.set_uniq()
+search.run(generations=100)
 
 elapsed_time = time.time() - start_time
 logger.info("Completed run in %d seconds." % elapsed_time)
@@ -34,4 +35,4 @@ sigma = utils.compute_sigma(search, mean)
 
 print("Mean: %.3f, standard deviation: %.3f." % (mean, sigma))
 
-plot.plot_scores(search.scores)
+plot.plot_scores(search)
